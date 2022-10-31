@@ -10,7 +10,11 @@ class Route(ABC):
         errs: list[Exception] = []
 
         if type(self).route == "":
-            errs.append(NoRouteSpecified())
+            errs.append(
+                NoRouteSpecified(
+                    f"No route was specified for {self.__class__.__name__} or {self.__class__.__name__}.route could not be accessed"
+                )
+            )
 
         # add errors here
 

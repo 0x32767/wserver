@@ -1,0 +1,6 @@
+[literal-access]
+folder=/resources/
+route-as=/assets/
+
+[rendering]
+use-reactive-updates=False
