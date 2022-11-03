@@ -7,19 +7,11 @@ class Route(ABC):
     route: str = ""
 
     def __init__(self: Self) -> None:
-        errs: list[Exception] = []
-
         if type(self).route == "":
-            errs.append(
-                NoRouteSpecified(
-                    f"No route was specified for {self.__class__.__name__} or {self.__class__.__name__}.route could not be accessed"
-                )
+            raise NoRouteSpecified(
+                f"No route was specified for {self.__class__.__name__} or {self.__class__.__name__}.route could not be accessed"
             )
 
-        # add errors here
-
-        if errs:
-            raise ExceptionGroup(errs)
 
     @property
     @abstractproperty
@@ -39,28 +31,35 @@ class Route(ABC):
         pass
 
     def on_get(self: Self, req) -> Tuple[str, int]:
-        return self.on_error
+        return self.on_error()
 
     def on_post(self: Self, req) -> Tuple[str, int]:
-        return self.on_error
+        return self.on_error()
 
     def on_put(self: Self, req) -> Tuple[str, int]:
-        return self.on_error
+        return self.on_error()
 
     def on_head(self: Self, req) -> Tuple[str, int]:
-        return self.on_error
+        return self.on_error()
 
     def on_delete(self: Self, req) -> Tuple[str, int]:
-        return self.on_error
+        return self.on_error()
 
     def on_connect(self: Self, req) -> Tuple[str, int]:
-        return self.on_error
+        return self.on_error()
 
     def on_options(self: Self, req) -> Tuple[str, int]:
-        return self.on_error
+        return self.on_error()
 
     def on_trace(self: Self, req) -> Tuple[str, int]:
-        return self.on_error
+        return self.on_error()
 
     def on_patch(self: Self, req) -> Tuple[str, int]:
-        return self.on_error
+        return self.on_error()
+
+    def handel_request(self: Self, req: Dict[str, str]) -> Tuple[str, int]:
+        if req["method"] == "GET" and req.get("Sec-WebSocket-Key"):
+            return self.on_connect(req)
+
+        return getattr(self, "on_" + req["method"].lower())(req)
+

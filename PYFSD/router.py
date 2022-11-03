@@ -1,9 +1,10 @@
 from configparser import ConfigParser
 from colorama import init, Fore
-from .errors import *
+from .core import _run_server
 from typing import Dict, List
 from .html import res
-from .core import _run_server
+from .errors import *
+from websockets import server
 
 
 init(autoreset=True)
@@ -69,7 +70,8 @@ def render_routes(inf: str):
 
     else:
         print(f'{Fore.GREEN}@{route} responding with "{type(cls).__name__}"')
-        return getattr(cls, f"on_{route['method'].lower()}")(route)
+        return cls.handel_request(route)
+#        return getattr(cls, f"on_{route['method'].lower()}")(route)
 
 
 def add_route(route) -> None:
