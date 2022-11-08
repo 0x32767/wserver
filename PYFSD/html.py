@@ -7,9 +7,17 @@ def res(html: str, status=(200, "OK")) -> str:
 
 class GenericHTMLElement:
     def __init__(self, name: str, self_closing: bool = False, *args, **kwargs) -> None:
+        # this genorates the id="some-name" part of an element
+        self.attrs = " ".join([str(k) + "=\"" + str(v) + "\" " for k, v in kwargs.items()]) +\
+            " ".join(args) # the arrgs are for example hidden
+
+        # together this makes up the:
+        # hidden id="123"
+        # part of the html element
+        # <button hidden id="123"></button>
+
         self.self_closing = self_closing
         self.name = name
-        self.attrs = " ".join([str(k) + "=\"" + str(v) + "\" " for k, v in kwargs.items()])
 
     def __getitem__(self, items):
         return self.render(items)
