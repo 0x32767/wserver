@@ -9,14 +9,10 @@ class GenericHTMLElement:
     def __init__(self, name: str, self_closing: bool = False, *args, **kwargs) -> None:
         self.self_closing = self_closing
         self.name = name
-
-        # this will genorate id="this or that" class="some-class"
         self.attrs = " ".join([str(k) + "=\"" + str(v) + "\" " for k, v in kwargs.items()])
 
-
-    def __getitem__(self, items: list):
+    def __getitem__(self, items):
         return self.render(items)
-
 
     def render(self, element) -> str:
         if isinstance(element, str):

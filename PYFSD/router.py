@@ -18,6 +18,11 @@ routes = {
 
 
 def parse_http(info: str):
+    if not info:
+        return ""
+
+    print(info.encode("utf-8"))
+
     res: Dict[str, str] = {}
 
     dat: List[str, str] = info.split("\r\n")
@@ -27,16 +32,15 @@ def parse_http(info: str):
     res["route"] = top[1]
 
     del dat[0]
-    x: int
 
     for x in dat:
         l: List[str, str] = x.split(":")
 
         if len(l) == 1:
-            res[l[0]] = None
+            res[l[0].strip()] = None
 
         else:
-            res[l[0]] = l[1]
+            res[l[0].strip()] = l[1].strip()
 
     return res
 
@@ -71,7 +75,6 @@ def render_routes(inf: str):
     else:
         print(f'{Fore.GREEN}@{route} responding with "{type(cls).__name__}"')
         return cls.handel_request(route)
-
 
 def add_route(route) -> None:
     routes[route.route] = route
