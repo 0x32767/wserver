@@ -71,7 +71,6 @@ def render_routes(inf: str):
     else:
         print(f'{Fore.GREEN}@{route} responding with "{type(cls).__name__}"')
         return cls.handel_request(route)
-#        return getattr(cls, f"on_{route['method'].lower()}")(route)
 
 
 def add_route(route) -> None:
