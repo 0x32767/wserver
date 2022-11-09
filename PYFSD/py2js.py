@@ -6,22 +6,29 @@ from ast import (
     Constant,
     Assign,
     Lambda,
+    Return,
+    BinOp,
     parse,
     Name,
     Call,
     dump,
+    Expr,
+    Mult,
+    Div,
+    Add,
+    Sub,
     arg,
-    arg
 )
-
 
 
 code = """
 @doc["abc"].click
 def on_some_click(event, element):
+    1 + 1
     return element
 
 """
+
 
 def get(stm) -> None:
     if isinstance(stm, list):
@@ -44,7 +51,7 @@ def get(stm) -> None:
 
     elif isinstance(stm, Constant):
         return transplile_constant(stm)
-    
+
     elif isinstance(stm, Lambda):
         return transplile_lambda(stm)
 
@@ -60,52 +67,98 @@ def get(stm) -> None:
     elif isinstance(stm, arguments):
         return transplile_arguments(stm)
 
-    elif isinstance(stm, )
+    elif isinstance(stm, Return):
+        return transplile_return(stm)
+
+    elif isinstance(stm, Expr):
+        return transplile_expr(stm)
+
+    elif isinstance(stm, BinOp):
+        return transplile_binop(stm)
+
+    elif isinstance(stm, Add):
+        return "+"
+
+    elif isinstance(stm, Sub):
+        return "-"
+
+    elif isinstance(stm, Mult):
+        return "*"
+
+    elif isinstance(stm, Div):
+        return " / "
 
     elif isinstance(stm, str):
+        return stm
+
+    elif isinstance(stm, int):
         return stm
 
     else:
         return str(stm)
 
+
+def transplile_binop(stmt: BinOp):
+    return "{l} {op} {r}".format(
+        l=x if isinstance(x := stmt.left, int) else get(x),
+        op=get(stmt.op),
+        r=x if isinstance(x := stmt.right, int) else get(x),
+    )
+
+
+def transplile_expr(stmt: Expr):
+    return get(stmt.value)
+
+
+def transplile_return(stmt: Return):
+    return "return {};".format(get(stmt.value))
+
+
 def transplile_arguments(stmt: arguments):
-    print(dump(stmt, indent=2))
     return ",".join(get(stmt.args))
 
 
 def transplile_funcdef(stmt: FunctionDef):
-    print(dump(stmt, indent=2))
     # a {{}} is an escape for a bracket
     return "function {name}({args}){{ {body} }}".format(
         name=get(stmt.name),
-        args=",".join(get(stmt.args)),
-        body=";".join(get(stmt.body))
+        args=get(stmt.args),
+        body=get(stmt.body) if len(stmt.body) == 1 else ";".join(get(stmt.body)),
     )
+
 
 def transplile_call(stmt: Call):
     return "{}({})".format(
         get(stmt.func),
-        get(stmt.args)
+        get(stmt.args),
     )
+
 
 def transplile_arg(stmt: arg):
     return stmt.arg
 
+
 def transplile_assign(stm: Assign) -> str:
     return "let {} = {};".format(
         get(stm.targets),
-        get(stm.value)
+        get(stm.value),
     )
+
 
 def transplile_name(stmt: Name):
     return "{}".format(
-        get(stmt.id)
+        get(stmt.id),
     )
 
 
 def transplile_constant(stmt: Constant):
-    return "\"{}\"".format(
-        get(stmt.value)
+    if isinstance(stmt.value, str):
+        return '"{}"'.format(
+            get(stmt.value),
+        )
+
+    return "{}".format(
+        get(stmt.value),
     )
 
 
@@ -113,20 +166,21 @@ def transplile_lambda(stmt: Lambda):
     args = ",".join(get(f) for f in stmt.args.args)
     return "(({})=>{{ {} }})".format(
         args,
-        get(stmt.body)
+        get(stmt.body),
     )
+
 
 def transplile_attribute(stmt: Attribute):
     return "{}.{}".format(
         get(stmt.value),
-        get(stmt.attr)
+        get(stmt.attr),
     )
 
 
 def transplile_sub_script(stmt: Subscript):
     return "{}[{}]".format(
         get(stmt.value),
-        get(stmt.slice)
+        get(stmt.slice),
     )
 
 
