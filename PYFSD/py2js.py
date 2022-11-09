@@ -1,9 +1,26 @@
-from ast import dump, parse, Assign, Attribute, Subscript, Name, Constant, Lambda, arg, Call
+from ast import (
+    FunctionDef,
+    arguments,
+    Attribute,
+    Subscript,
+    Constant,
+    Assign,
+    Lambda,
+    parse,
+    Name,
+    Call,
+    dump,
+    arg,
+    arg
+)
+
 
 
 code = """
-doc["#abc"].onclick = lambda event, element: console.log("Here")
-doc["#def"].onclick = lambda e: console.log("also Here")
+@doc["abc"].click
+def on_some_click(event, element):
+    return element
+
 """
 
 def get(stm) -> None:
@@ -37,15 +54,35 @@ def get(stm) -> None:
     elif isinstance(stm, Call):
         return transplile_call(stm)
 
-    elif isinstance(stm, str):
-        return '"{}"'.format(stm)
+    elif isinstance(stm, FunctionDef):
+        return transplile_funcdef(stm)
 
+    elif isinstance(stm, arguments):
+        return transplile_arguments(stm)
+
+    elif isinstance(stm, )
+
+    elif isinstance(stm, str):
+        return stm
 
     else:
         return str(stm)
 
+def transplile_arguments(stmt: arguments):
+    print(dump(stmt, indent=2))
+    return ",".join(get(stmt.args))
+
+
+def transplile_funcdef(stmt: FunctionDef):
+    print(dump(stmt, indent=2))
+    # a {{}} is an escape for a bracket
+    return "function {name}({args}){{ {body} }}".format(
+        name=get(stmt.name),
+        args=",".join(get(stmt.args)),
+        body=";".join(get(stmt.body))
+    )
+
 def transplile_call(stmt: Call):
-    print(dump(stmt))
     return "{}({})".format(
         get(stmt.func),
         get(stmt.args)
@@ -67,7 +104,7 @@ def transplile_name(stmt: Name):
 
 
 def transplile_constant(stmt: Constant):
-    return "{}".format(
+    return "\"{}\"".format(
         get(stmt.value)
     )
 
@@ -80,7 +117,7 @@ def transplile_lambda(stmt: Lambda):
     )
 
 def transplile_attribute(stmt: Attribute):
-    return "{}[{}] ".format(
+    return "{}.{}".format(
         get(stmt.value),
         get(stmt.attr)
     )
