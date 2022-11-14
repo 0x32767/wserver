@@ -1,6 +1,8 @@
-from abc import abstractmethod, ABC, abstractproperty
-from .errors import NoRouteSpecified
+from .errors import NoRouteSpecified, ErrorFunctionError
+from abc import ABC, abstractproperty
 from typing import Dict, Self, Tuple
+from warnings import warn
+from .html import res
 
 
 class Route(ABC):
@@ -11,7 +13,6 @@ class Route(ABC):
             raise NoRouteSpecified(
                 f"No route was specified for {self.__class__.__name__} or {self.__class__.__name__}.route could not be accessed"
             )
-
 
     @property
     @abstractproperty
@@ -45,9 +46,6 @@ class Route(ABC):
     def on_delete(self: Self, req) -> Tuple[str, int]:
         return self.on_error()
 
-    def on_connect(self: Self, req) -> Tuple[str, int]:
-        return self.on_error()
-
     def on_options(self: Self, req) -> Tuple[str, int]:
         return self.on_error()
 
@@ -58,8 +56,22 @@ class Route(ABC):
         return self.on_error()
 
     def handel_request(self: Self, req: Dict[str, str]) -> Tuple[str, int]:
-        if req["method"] == "GET" and req.get("Sec-WebSocket-Key"):
-            return self.on_connect(req)
+        try:
+            return getattr(self, "on_" + req["method"].lower())(req)
 
-        return getattr(self, "on_" + req["method"].lower())(req)
+        except Exception as e:
+            try:
+                # then we must have a problem with the on_error function
+                return self.on_error(e, req)
 
+            except Exception as e2:
+                error = ExceptionGroup("nested", [e, e2])
+
+                error.add_note("This exception was also raised in the on_error function\n{}")
+
+                warn(error)
+                # send a request
+                return res("internal server error", (500, "internal server error"))
+
+            finally:
+                warn(e)

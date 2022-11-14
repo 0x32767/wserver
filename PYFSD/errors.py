@@ -16,6 +16,16 @@ class DotCNFNotFound(RuntimeWarning):
     """
 
 
+class ErrorFunctionError(RuntimeWarning):
+    """
+    If there is a bad implemenetation for an error function e.g the
+    function contains:
+    >>> 0 / 0
+    Or another bad thing then we can not render the on_error event because
+    that will just cause anpther error. Instead we warn the user and send a
+    message saying "INTERNAL SERVER ERROR" and a 500 status code.
+    """
+
 class NoRouteSpecified(Exception):
     """
     When Making a route you create a class that inherits from "Route", this

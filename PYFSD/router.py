@@ -1,10 +1,8 @@
 from configparser import ConfigParser
 from colorama import init, Fore
-from .core import _run_server
 from typing import Dict, List
-from .html import res
+from .core import _run_server
 from .errors import *
-from websockets import server
 
 
 init(autoreset=True)
@@ -20,8 +18,6 @@ routes = {
 def parse_http(info: str):
     if not info:
         return ""
-
-    print(info.encode("utf-8"))
 
     res: Dict[str, str] = {}
 
@@ -60,16 +56,18 @@ def render_routes(inf: str):
         )
 
         # return a not found response
-        return res(
-            open(routes[config["errors"]["not-found"]], "r").read(), (404, "not found")
-        )
+        return routes["***error"].invalid_route(route)
 
+    except TypeError as te:
+        return routes["***error"].bad_request(route)
+
+
+    # if we got the class successfully
     if cls is None:
         print(f'{Fore.GREEN}@{route} responding with ""')
-        return ""
+        return route["/error"].bad_request(route)
 
     elif isinstance(cls, str):
-        print(f"{Fore.GREEN}@{route} responding with a string")
         return cls
 
     else:

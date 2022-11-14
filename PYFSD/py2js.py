@@ -1,3 +1,4 @@
+from inspect import getsource
 from ast import (
     FunctionDef,
     arguments,
@@ -19,15 +20,6 @@ from ast import (
     Sub,
     arg,
 )
-
-
-code = """
-@doc["abc"].click
-def on_some_click(event, element):
-    1 + 1
-    return element
-
-"""
 
 
 def get(stm) -> None:
@@ -128,6 +120,12 @@ def transplile_funcdef(stmt: FunctionDef):
 
 
 def transplile_call(stmt: Call):
+    if get(stmt.func) == "set":
+        return "{} = {}".format(
+            get(stmt.args[0]),
+            get(stmt.args[1]),
+        )
+
     return "{}({})".format(
         get(stmt.func),
         get(stmt.args),
@@ -139,7 +137,8 @@ def transplile_arg(stmt: arg):
 
 
 def transplile_assign(stm: Assign) -> str:
-    return "let {} = {};".format(
+    print(dump(stm, indent=2))
+    return "let {} = {}".format(
         get(stm.targets),
         get(stm.value),
     )
@@ -184,5 +183,5 @@ def transplile_sub_script(stmt: Subscript):
     )
 
 
-for stmt in parse(code).body:
-    print(get(stmt))
+def jsifiy(fnc):
+    return "".join(get(stmt) for stmt in parse(getsource(fnc)).body)
