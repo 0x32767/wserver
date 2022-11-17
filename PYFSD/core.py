@@ -17,7 +17,8 @@ def _run_server(SERVER_HOST: str, SERVER_PORT: int, run_route):
         request = client_connection.recv(1024).decode()
 
         # Send HTTP response
-        client_connection.sendall(run_route(request).encode())
-        client_connection.close()
+        client_connection.sendall(
+            run_route(request, client_connection).encode()
+        )
 
     server_socket.close()

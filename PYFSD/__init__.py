@@ -1,3 +1,4 @@
+from .error_route import*
 from .errors import *
 from .router import *
 from .py2js import *

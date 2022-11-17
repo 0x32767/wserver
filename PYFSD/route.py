@@ -65,7 +65,7 @@ class Route(ABC):
                 return self.on_error(e, req)
 
             except Exception as e2:
-                error = ExceptionGroup("nested", [e, e2])
+                error = ExceptionGroup("nested", [ErrorFunctionError(), e, e2])
 
                 error.add_note("This exception was also raised in the on_error function\n{}")
 
