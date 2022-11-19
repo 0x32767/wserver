@@ -2,6 +2,7 @@ from configparser import ConfigParser
 from colorama import init, Fore
 from typing import Dict, List
 from .core import _run_server
+from _socket import socket
 from re import Pattern
 from .errors import *
 
@@ -44,10 +45,7 @@ def parse_http(info: str):
     return res
 
 
-def render_routes(inf: str, conn):
-    # TODO return of the conn should close
-    # TODO make this shit multithreaded:
-    #   + this shit is just too slow
+def render_routes(inf: str, conn: socket):
     route: dict[str, any] = parse_http(inf)
 
     # this is eather None or a route class
@@ -61,7 +59,8 @@ def render_routes(inf: str, conn):
         for k, v in routes.items():
             if isinstance(k, Pattern):
                 if k.fullmatch(route):
-                    return v.handel_request(route)
+                    conn.sendall(v.handel_request(route).encode())
+                    conn.close()
 
         # if we have not found a match with regex
         else:
@@ -71,23 +70,28 @@ def render_routes(inf: str, conn):
             )
 
             # return a not found response
-            return routes["***error"].invalid_route(route)
+            conn.sendall(routes["***error"].invalid_route(route).encode())
+            conn.close()
 
     except TypeError as te:
-        return routes["***error"].bad_request(route)
-
+        conn.sendall(routes["***error"].bad_request(route).encode())
+        conn.close()
 
     # if we got the class successfully
     if cls is None:
         print(f'{Fore.GREEN}@{route} responding with ""')
-        return route["/error"].bad_request(route)
+        conn.sendall(route["/error"].bad_request(route).encode())
+        conn.close()
 
     elif isinstance(cls, str):
-        return cls
+        conn.sendall(cls.encode())
+        conn.close()
 
     else:
         print(f'{Fore.GREEN}@{route} responding with "{type(cls).__name__}"')
-        return cls.handel_request(route)
+        conn.sendall(cls.handel_request(route).encode())
+        conn.close()
+
 
 def add_route(route) -> None:
     routes[route.route] = route

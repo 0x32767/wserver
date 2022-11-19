@@ -1,3 +1,4 @@
+from threading import Thread
 import socket
 
 
@@ -17,8 +18,7 @@ def _run_server(SERVER_HOST: str, SERVER_PORT: int, run_route):
         request = client_connection.recv(1024).decode()
 
         # Send HTTP response
-        client_connection.sendall(
-            run_route(request, client_connection).encode()
-        )
+        t = Thread(target=run_route, args=(request, client_connection))
+        t.run()
 
     server_socket.close()
