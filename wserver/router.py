@@ -47,7 +47,7 @@ def parse_http(info: str):
 def render_routes(inf: str, conn):
     # TODO return of the conn should close
     # TODO make this shit multithreaded:
-    #   - this shit is just too slow
+    #   + this shit is just too slow
     route: dict[str, any] = parse_http(inf)
 
     # this is eather None or a route class

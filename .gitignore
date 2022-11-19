@@ -2,3 +2,5 @@ __pycache__
 *.pyc
 index.html
 main.py
+.vs
+.idea

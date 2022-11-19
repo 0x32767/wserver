@@ -16,6 +16,13 @@ class DotCNFNotFound(RuntimeWarning):
     """
 
 
+class BadDiagramSerialization(RuntimeWarning, AttributeError):
+    """
+    It is possible to serialize a matplotlib or any image file, if an
+    object can not be serialized then this error is thrown.
+    """
+
+
 class ErrorFunctionError(RuntimeWarning):
     """
     If there is a bad implemenetation for an error function e.g the
@@ -26,12 +33,18 @@ class ErrorFunctionError(RuntimeWarning):
     message saying "INTERNAL SERVER ERROR" and a 500 status code.
     """
 
+
 class NoRouteSpecified(Exception):
     """
     When Making a route you create a class that inherits from "Route", this
     class uses a class variable to define the route.
+    >>> from PYFSD.typing import *
+    >>> from PYFSD import Route
+    >>>
     >>> class SomeRoute(Route):
     ...     route = "/define_your_route_here/and_here"
+    ...
+    ...     def on_error(self: Self, route: Dict) -> Tuple[str, int]:
 
     This is required when creating routes.
     """

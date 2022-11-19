@@ -22,7 +22,7 @@ from ast import (
 )
 
 
-def get(stm) -> None:
+def get(stm):
     if isinstance(stm, list):
         if len(stm) == 1:
             return get(stm[0])
@@ -30,43 +30,43 @@ def get(stm) -> None:
         return [get(s) for s in stm]
 
     elif isinstance(stm, Assign):
-        return transplile_assign(stm)
+        return transpile_assign(stm)
 
     elif isinstance(stm, Attribute):
-        return transplile_attribute(stm)
+        return transpile_attribute(stm)
 
     elif isinstance(stm, Subscript):
-        return transplile_sub_script(stm)
+        return transpile_sub_script(stm)
 
     elif isinstance(stm, Name):
-        return transplile_name(stm)
+        return transpile_name(stm)
 
     elif isinstance(stm, Constant):
-        return transplile_constant(stm)
+        return transpile_constant(stm)
 
     elif isinstance(stm, Lambda):
-        return transplile_lambda(stm)
+        return transpile_lambda(stm)
 
     elif isinstance(stm, arg):
-        return transplile_arg(stm)
+        return transpile_arg(stm)
 
     elif isinstance(stm, Call):
-        return transplile_call(stm)
+        return transpile_call(stm)
 
     elif isinstance(stm, FunctionDef):
-        return transplile_funcdef(stm)
+        return transpile_funcdef(stm)
 
     elif isinstance(stm, arguments):
-        return transplile_arguments(stm)
+        return transpile_arguments(stm)
 
     elif isinstance(stm, Return):
-        return transplile_return(stm)
+        return transpile_return(stm)
 
     elif isinstance(stm, Expr):
-        return transplile_expr(stm)
+        return transpile_expr(stm)
 
     elif isinstance(stm, BinOp):
-        return transplile_binop(stm)
+        return transpile_binop(stm)
 
     elif isinstance(stm, Add):
         return "+"
@@ -90,7 +90,7 @@ def get(stm) -> None:
         return str(stm)
 
 
-def transplile_binop(stmt: BinOp):
+def transpile_binop(stmt: BinOp):
     return "{l} {op} {r}".format(
         l=x if isinstance(x := stmt.left, int) else get(x),
         op=get(stmt.op),
@@ -98,19 +98,19 @@ def transplile_binop(stmt: BinOp):
     )
 
 
-def transplile_expr(stmt: Expr):
+def transpile_expr(stmt: Expr):
     return get(stmt.value)
 
 
-def transplile_return(stmt: Return):
+def transpile_return(stmt: Return):
     return "return {};".format(get(stmt.value))
 
 
-def transplile_arguments(stmt: arguments):
+def transpile_arguments(stmt: arguments):
     return ",".join(get(stmt.args))
 
 
-def transplile_funcdef(stmt: FunctionDef):
+def transpile_funcdef(stmt: FunctionDef):
     # a {{}} is an escape for a bracket
     return "function {name}({args}){{ {body} }}".format(
         name=get(stmt.name),
@@ -119,7 +119,7 @@ def transplile_funcdef(stmt: FunctionDef):
     )
 
 
-def transplile_call(stmt: Call):
+def transpile_call(stmt: Call):
     if get(stmt.func) == "set":
         return "{} = {}".format(
             get(stmt.args[0]),
@@ -132,11 +132,11 @@ def transplile_call(stmt: Call):
     )
 
 
-def transplile_arg(stmt: arg):
+def transpile_arg(stmt: arg):
     return stmt.arg
 
 
-def transplile_assign(stm: Assign) -> str:
+def transpile_assign(stm: Assign) -> str:
     print(dump(stm, indent=2))
     return "let {} = {}".format(
         get(stm.targets),
@@ -144,13 +144,13 @@ def transplile_assign(stm: Assign) -> str:
     )
 
 
-def transplile_name(stmt: Name):
+def transpile_name(stmt: Name):
     return "{}".format(
         get(stmt.id),
     )
 
 
-def transplile_constant(stmt: Constant):
+def transpile_constant(stmt: Constant):
     if isinstance(stmt.value, str):
         return '"{}"'.format(
             get(stmt.value),
@@ -161,7 +161,7 @@ def transplile_constant(stmt: Constant):
     )
 
 
-def transplile_lambda(stmt: Lambda):
+def transpile_lambda(stmt: Lambda):
     args = ",".join(get(f) for f in stmt.args.args)
     return "(({})=>{{ {} }})".format(
         args,
@@ -169,14 +169,14 @@ def transplile_lambda(stmt: Lambda):
     )
 
 
-def transplile_attribute(stmt: Attribute):
+def transpile_attribute(stmt: Attribute):
     return "{}.{}".format(
         get(stmt.value),
         get(stmt.attr),
     )
 
 
-def transplile_sub_script(stmt: Subscript):
+def transpile_sub_script(stmt: Subscript):
     return "{}[{}]".format(
         get(stmt.value),
         get(stmt.slice),
