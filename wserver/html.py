@@ -25,6 +25,9 @@ class GenericHTMLElement:
         return self.render(items)
 
     def render(self, element) -> str:
+        if isinstance(element, list) and len(element) == 1:
+            return self.render(element[0])
+
         if isinstance(element, str):
             return f"<{self.name} {self.attrs}>\n{element}\n</{self.name}>"
 
